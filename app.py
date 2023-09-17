@@ -28,7 +28,7 @@ with tab1:
             df_failed_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & ~df_fail['Unique Id'].isin(lst_success)].reset_index()
             df_failed_duplicates.loc[:, 'Transaction Status'] = 'duplicates not in success (failed)'
             df_success_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & df_fail['Unique Id'].isin(lst_success)].reset_index()
-            df_success_duplicates['Transaction Status'] = 'duplicates in success (failed)'
+            df_success_duplicates.loc[:, 'Transaction Status'] = 'duplicates in success (failed)'
             df_fail_other = df_fail[~df_fail['Comment'].eq('DUPLICATE TX')].reset_index()
             df_fail_other.loc[:, 'Transaction Status'] = 'other failed'
             df_undischarged_0 = df[df['Transaction Status'].eq('undischarged-00')].reset_index()
