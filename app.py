@@ -1,7 +1,7 @@
 import pandas as pd
 import streamlit as st
 
-from helper import format_data, create_agent, query_agent
+from helper import format_data, create_agent, query_agent, query_agent_any
 
 st.set_page_config(page_title="TNS Robot", page_icon=":robot_face:")
 st.markdown("<h1 style='text-align: center;'>TNS Robot</h1>", unsafe_allow_html=True)
@@ -91,7 +91,7 @@ with tab3:
         if submit_btn and query and api_key:
             df = pd.read_excel(data)
             agent = create_agent(df, api_key)
-            response = query_agent(agent=agent, query=query)
+            response = query_agent_any(agent=agent, query=query)
             st.write(response)
         elif submit_btn and query and not api_key:
             st.write('Enter Openai API Key')
