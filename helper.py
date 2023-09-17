@@ -35,6 +35,7 @@ def format_data(filename: str):
     df['TRANS Time'] = df['TRANS Time'].astype(str)
     df['TRANS DT'] = df['TRANS Date'] + df['TRANS Time']
     df['TRANS DT'] = pd.to_datetime(df['TRANS DT'], format='%Y%m%d%H%M%S')
+    df['Month'] = df['TRANS DT'].dt.strftime('%B %Y')
     df['TRANS DT Str'] = df['TRANS DT'].dt.strftime('%Y-%m-%d-%H-%M-%S')
     df['slug'] = np.vectorize(create_slug)(df['TRANS DT Str'], df['Card No.'], df['Autual Amount'])
 
@@ -49,6 +50,7 @@ def format_data(filename: str):
          'Liquidation status',
          'Reason for refusal',
          'TRANS DT',
+         'Month',
          'slug'
          ]
     ]
@@ -83,6 +85,15 @@ def query_agent(agent, query):
     )
     # Run the prompt through the agent.
     response = agent.run(prompt)
+
+    # Convert the response to a string.
+    return response.__str__()
+
+
+def query_agent_any(agent, query):
+
+    # Run the prompt through the agent.
+    response = agent.run(query)
 
     # Convert the response to a string.
     return response.__str__()

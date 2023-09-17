@@ -21,32 +21,33 @@ with tab1:
     with response_container:
         if generate and data:
             df = format_data(data)
-            df_success = df[df['Transaction Status'].eq('success')]
-            df_fail = df[df['Transaction Status'].eq('fail')]
+            df_success = df[df['Transaction Status'].eq('success')].reset_index()
+            df_fail = df[df['Transaction Status'].eq('fail')].reset_index()
             lst_success = df_success['Unique Id'].to_list()
             # lst_fail = df_fail.slug.to_list()
-            df_failed_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & ~df_fail['Unique Id'].isin(lst_success)]
-            df_failed_duplicates['Transaction Status'] = 'duplicates not in success (failed)'
-            df_success_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & df_fail['Unique Id'].isin(lst_success)]
+            df_failed_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & ~df_fail['Unique Id'].isin(lst_success)].reset_index()
+            df_failed_duplicates.loc[:, 'Transaction Status'] = 'duplicates not in success (failed)'
+            df_success_duplicates = df_fail[df_fail['Comment'].eq('DUPLICATE TX') & df_fail['Unique Id'].isin(lst_success)].reset_index()
             df_success_duplicates['Transaction Status'] = 'duplicates in success (failed)'
-            df_fail_other = df_fail[~df_fail['Comment'].eq('DUPLICATE TX')]
-            df_fail_other['Transaction Status'] = 'other failed'
-            df_undischarged_0 = df[df['Transaction Status'].eq('undischarged-00')]
-            df_undischarged_1 = df[df['Transaction Status'].eq('undischarged-01')]
+            df_fail_other = df_fail[~df_fail['Comment'].eq('DUPLICATE TX')].reset_index()
+            df_fail_other.loc[:, 'Transaction Status'] = 'other failed'
+            df_undischarged_0 = df[df['Transaction Status'].eq('undischarged-00')].reset_index()
+            df_undischarged_1 = df[df['Transaction Status'].eq('undischarged-01')].reset_index()
 
             # Concatenate all DataFrames
             merged_df = pd.concat(
-                [df_success, df_fail, df_failed_duplicates, df_success_duplicates, df_fail_other, df_undischarged_0,
+                [df_success, df_failed_duplicates, df_success_duplicates, df_fail_other, df_undischarged_0,
                  df_undischarged_1])
 
             # Optionally, reset the index if needed
             merged_df.reset_index(drop=True, inplace=True)
 
-            # Group the DataFrame by 'Transaction Status' and calculate the total transaction count and total transaction amount for each status
-            result = merged_df.groupby('Transaction Status').agg({
+            # Group the DataFrame by 'Transaction Status' and calculate the total transaction count and total
+            # transaction amount for each status
+            result = merged_df.groupby(['Month', 'Transaction Status']).agg({
                 'Transaction Status': 'count',  # Count the occurrences of each status
                 'Transaction Amount': 'sum'  # Sum the transaction amounts for each status
-            }).rename(columns={'Transaction Status': 'Total Transactions', 'Transaction Amount': 'Total Amount'})
+            }).rename(columns={'Transaction Status': 'Total Transactions', 'Transaction Amount': 'Total Amount (R)'})
 
             # Reset the index to make the 'Transaction Status' a column
             result = result.reset_index()
